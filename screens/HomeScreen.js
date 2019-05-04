@@ -19,11 +19,12 @@ class HomeScreen extends React.Component {
     return {
       headerTitle: <Text style={styles.title}>Melty Chat</Text>,
       headerRight: (
-        <Button
+        <TouchableOpacity
           onPress={navigation.getParam('onPressNew') || (() => {})}
-          title="New"
           style={styles.barButton}
-        />
+        >
+          <Text style={styles.barButtonText}>Post</Text>
+        </TouchableOpacity>
       ),
     };
   };
@@ -145,12 +146,17 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   barButton: {
-    fontSize: 16
+    paddingRight: 10
+  },
+  barButtonText: {
+    fontSize: 16,
+    color: 'blue'
   },
   listItem: {
     marginLeft: 10,
     marginRight: 10,
-    marginBottom: 10,
+    marginTop: 5,
+    marginBottom: 5,
     padding: 10,
     borderColor: 'gray',
     borderWidth: 1
