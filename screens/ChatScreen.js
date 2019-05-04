@@ -18,13 +18,14 @@ import { db } from "../services/db";
 class ChatScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      headerTitle: <Text>{navigation.getParam('topic', {name: ''}).name}</Text>,
+      headerTitle: <Text style={styles.title}>{navigation.getParam('topic', {name: ''}).name}</Text>,
       headerRight: (
-        <Button
+        <TouchableOpacity
           onPress={navigation.getParam('onPressNew') || (() => {})}
-          title="New"
-          color="#000"
-        />
+          style={styles.barButton}
+        >
+          <Text style={styles.barButtonText}>Post</Text>
+        </TouchableOpacity>
       ),
     };
   };
@@ -76,56 +77,49 @@ class ChatScreen extends React.Component {
     this.setState({ visibleModal: true });
   };
 
-  _renderButton = (text, onPress) => (
-    <TouchableOpacity onPress={onPress}>
-      <View style={styles.button}>
-        <Text>{text}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
   _renderModalContent = () => (
     <View style={styles.modalContent}>
-      <View style={styles.textInputContainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder="comment..."
-          multiline={true}
-          numberOfLines={0}
-          onChangeText={this.handleChangeText}
-        />
-        <Button
-          title="submit"
+      <TextInput
+        style={styles.textInput}
+        placeholder="Message"
+        multiline={true}
+        numberOfLines={0}
+        onChangeText={this.handleChangeText}
+      />
+      <View style={styles.actions}>
+        <TouchableOpacity
+          onPress={() => this.setState({ visibleModal: false })}
+          style={styles.cancelButton}
+        >
+          <Text style={styles.cancelButtonText} >Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
           onPress={this.handleSubmitText}
           style={styles.submitButton}
-        />
+        >
+          <Text style={styles.submitButtonText}>Post</Text>
+        </TouchableOpacity>
       </View>
-      {this._renderButton('Close', () => this.setState({ visibleModal: false }))}
     </View>
   );
 
   _keyExtractor = (item, index) => item.id;
 
   _renderItem = ({item}) => (
-    <View style={styles.listItemContainer}>
-      <Text style={styles.listItem} numberOfLines={0}>{item.text}</Text>
+    <View style={styles.listItem}>
+      <Text style={styles.listItemText} numberOfLines={0}>{item.text}</Text>
     </View>
   );
 
   render() {
     return (
-      <SafeAreaView
-        behavior="padding"
-        contentContainerStyle={styles.thread}
-        style={styles.thread}
-      >
+      <SafeAreaView style={styles.container}>
         <FlatList
           style={styles.list}
           data={this.state.messages}
           keyExtractor={this._keyExtractor}
           renderItem={this._renderItem}
         />
-        <View>
         <Modal
           visible={this.state.visibleModal}
           animationType="slide"
@@ -133,63 +127,78 @@ class ChatScreen extends React.Component {
         >
           {this._renderModalContent()}
         </Modal>
-       </View>
      </SafeAreaView>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  thread: {
-    flex: 1
-  },
-  list: {
+  container: {
     flex: 1,
-    backgroundColor: "#CCC"
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 16
+  },
+  barButton: {
+    paddingRight: 10
+  },
+  barButtonText: {
+    fontSize: 16,
+    color: 'blue'
   },
   listItem: {
-    fontSize: 18
+    marginLeft: 10,
+    marginRight: 10,
+    marginBottom: 10,
+    padding: 10,
+    borderColor: 'gray',
+    borderBottomWidth: 1
   },
-  listItemContainer: {
-    borderStyle: "solid",
-    borderBottomWidth: 1,
-    borderBottomColor: "#333"
-  },
-  textInputContainer: {
-    height: 100,
-    flexDirection: "row",
-    backgroundColor: "#FFF"
+  listItemText: {
+    fontSize: 16
   },
   textInput: {
-    flex: 1,
+    marginBottom: 20,
+    height: 160,
+    backgroundColor: "#fff",
+    padding: 4
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   submitButton: {
-    width: 60,
-    backgroundColor: "#555"
-  },
-  button: {
-    backgroundColor: 'lightblue',
+    width: 80,
+    backgroundColor: 'blue',
     padding: 12,
-    margin: 16,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 4,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderColor: 'blue',
+    borderWidth: 1
+  },
+  submitButtonText: {
+    color: '#fff'
+  },
+  cancelButton: {
+    width: 80,
+    padding: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    color: 'blue'
   },
   modalContent: {
     marginTop: 100,
     marginLeft: 20,
     marginRight: 20,
-    backgroundColor: '#555',
+    backgroundColor: 'silver',
     padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
     borderRadius: 4,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
   },
 });
 
