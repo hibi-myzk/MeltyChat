@@ -167,7 +167,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1
   },
   listItemText: {
-    fontSize: 16
+    fontSize: 16,
+    lineHeight: 20
   },
   metadata: {
     marginBottom: 4,
