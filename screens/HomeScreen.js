@@ -10,6 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import prompt from 'react-native-prompt-android';
+import SafeAreaView from 'react-native-safe-area-view';
 
 import { db } from "../services/db";
 
@@ -83,9 +84,9 @@ class HomeScreen extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <MultiSelectList navigation={this.props.navigation} data={this.state.topics} />
-      </View>
+      </SafeAreaView>
     );
   }
 }

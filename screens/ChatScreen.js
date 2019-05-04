@@ -11,6 +11,7 @@ import {
   Modal
 } from 'react-native';
 import { createStackNavigator, createAppContainer } from "react-navigation";
+import SafeAreaView from 'react-native-safe-area-view';
 
 import { db } from "../services/db";
 
@@ -113,7 +114,7 @@ class ChatScreen extends React.Component {
 
   render() {
     return (
-      <KeyboardAvoidingView
+      <SafeAreaView
         behavior="padding"
         contentContainerStyle={styles.thread}
         style={styles.thread}
@@ -133,7 +134,7 @@ class ChatScreen extends React.Component {
           {this._renderModalContent()}
         </Modal>
        </View>
-      </KeyboardAvoidingView>
+     </SafeAreaView>
     );
   }
 }
