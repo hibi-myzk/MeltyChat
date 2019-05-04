@@ -7,6 +7,8 @@ import {
   FlatList,
   KeyboardAvoidingView,
   TextInput,
+  TouchableOpacity,
+  Modal
 } from 'react-native';
 import { createStackNavigator, createAppContainer } from "react-navigation";
 
@@ -16,6 +18,13 @@ class ChatScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
       headerTitle: <Text>{navigation.getParam('topic', {name: ''}).name}</Text>,
+      headerRight: (
+        <Button
+          onPress={navigation.getParam('onPressNew') || (() => {})}
+          title="New"
+          color="#000"
+        />
+      ),
     };
   };
 
@@ -24,7 +33,8 @@ class ChatScreen extends React.Component {
 
     this.state = {
       text: '',
-      messages: []
+      messages: [],
+      visibleModal: false,
     };
 
     this.handleChangeText = this.handleChangeText.bind(this);
@@ -43,7 +53,7 @@ class ChatScreen extends React.Component {
   }
 
   componentDidMount() {
-    console.log(this.props.navigation.getParam('item', {id: ''}));
+    this.props.navigation.setParams({ onPressNew: this._onPressNew });
   }
 
   handleChangeText(text) {
@@ -57,13 +67,47 @@ class ChatScreen extends React.Component {
       text: this.state.text,
       created_at: new Date()
     });
+
+    this.setState({ visibleModal: false });
   }
+
+  _onPressNew = () => {
+    this.setState({ visibleModal: true });
+  };
+
+  _renderButton = (text, onPress) => (
+    <TouchableOpacity onPress={onPress}>
+      <View style={styles.button}>
+        <Text>{text}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  _renderModalContent = () => (
+    <View style={styles.modalContent}>
+      <View style={styles.textInputContainer}>
+        <TextInput
+          style={styles.textInput}
+          placeholder="comment..."
+          multiline={true}
+          numberOfLines={0}
+          onChangeText={this.handleChangeText}
+        />
+        <Button
+          title="submit"
+          onPress={this.handleSubmitText}
+          style={styles.submitButton}
+        />
+      </View>
+      {this._renderButton('Close', () => this.setState({ visibleModal: false }))}
+    </View>
+  );
 
   _keyExtractor = (item, index) => item.id;
 
   _renderItem = ({item}) => (
     <View style={styles.listItemContainer}>
-      <Text style={styles.listItem}>{item.text}</Text>
+      <Text style={styles.listItem} numberOfLines={0}>{item.text}</Text>
     </View>
   );
 
@@ -80,18 +124,15 @@ class ChatScreen extends React.Component {
           keyExtractor={this._keyExtractor}
           renderItem={this._renderItem}
         />
-        <View style={styles.textInputContainer}>
-          <TextInput
-            style={styles.textInput}
-            placeholder="comment..."
-            onChangeText={this.handleChangeText}
-          />
-          <Button
-            title="submit"
-            onPress={this.handleSubmitText}
-            style={styles.submitButton}
-          />
-        </View>
+        <View>
+        <Modal
+          visible={this.state.visibleModal}
+          animationType="slide"
+          transparent={true}
+        >
+          {this._renderModalContent()}
+        </Modal>
+       </View>
       </KeyboardAvoidingView>
     );
   }
@@ -111,21 +152,44 @@ const styles = StyleSheet.create({
   listItemContainer: {
     borderStyle: "solid",
     borderBottomWidth: 1,
-    borderBottomColor: "#333",
-    height: 50
+    borderBottomColor: "#333"
   },
   textInputContainer: {
-    height: 50,
+    height: 100,
     flexDirection: "row",
     backgroundColor: "#FFF"
   },
   textInput: {
-    flex: 1
+    flex: 1,
   },
   submitButton: {
     width: 60,
     backgroundColor: "#555"
-  }
+  },
+  button: {
+    backgroundColor: 'lightblue',
+    padding: 12,
+    margin: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  modalContent: {
+    marginTop: 100,
+    marginLeft: 20,
+    marginRight: 20,
+    backgroundColor: '#555',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  bottomModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
 });
 
 export default ChatScreen;
