@@ -17,12 +17,12 @@ import { db } from "../services/db";
 class HomeScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      headerTitle: <Text>Melty Chat</Text>,
+      headerTitle: <Text style={styles.title}>Melty Chat</Text>,
       headerRight: (
         <Button
           onPress={navigation.getParam('onPressNew') || (() => {})}
           title="New"
-          color="#000"
+          style={styles.barButton}
         />
       ),
     };
@@ -84,8 +84,11 @@ class HomeScreen extends React.Component {
 
   render() {
     return (
-      <SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <MultiSelectList navigation={this.props.navigation} data={this.state.topics} />
+      <SafeAreaView style={styles.container}>
+        <MyList
+          navigation={this.props.navigation}
+          data={this.state.topics}
+        />
       </SafeAreaView>
     );
   }
@@ -99,15 +102,15 @@ class MyListItem extends React.PureComponent {
   render() {
     return (
       <TouchableOpacity onPress={this._onPress}>
-        <View>
-          <Text>{this.props.name}</Text>
+        <View style={styles.listItem}>
+          <Text style={styles.listItemText}>{this.props.name}</Text>
         </View>
       </TouchableOpacity>
     );
   }
 }
 
-class MultiSelectList extends React.PureComponent {
+class MyList extends React.PureComponent {
   _keyExtractor = (item, index) => item.id;
 
   _onPressItem = (item) => {
@@ -137,9 +140,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
+  title: {
+    fontSize: 16
+  },
+  barButton: {
+    fontSize: 16
+  },
+  listItem: {
+    marginLeft: 10,
+    marginRight: 10,
+    marginBottom: 10,
+    padding: 10,
+    borderColor: 'gray',
+    borderWidth: 1
+  },
+  listItemText: {
+    fontSize: 16
+  }
 });
 
 export default HomeScreen;
