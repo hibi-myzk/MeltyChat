@@ -86,27 +86,30 @@ class ChatScreen extends React.Component {
   };
 
   _renderModalContent = () => (
-    <View style={styles.modalContent}>
-      <TextInput
-        style={styles.textInput}
-        placeholder="Message"
-        multiline={true}
-        numberOfLines={0}
-        onChangeText={this.handleChangeText}
-      />
-      <View style={styles.actions}>
-        <TouchableOpacity
-          onPress={() => this.setState({ visibleModal: false })}
-          style={styles.cancelButton}
-        >
-          <Text style={styles.cancelButtonText} >Cancel</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={this.handleSubmitText}
-          style={styles.submitButton}
-        >
-          <Text style={styles.submitButtonText}>Post</Text>
-        </TouchableOpacity>
+    <View style={styles.modalBack}>
+      <View style={styles.modalContent}>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Message"
+          multiline={true}
+          numberOfLines={0}
+          onChangeText={this.handleChangeText}
+        />
+        <View style={styles.actions}>
+          <TouchableOpacity
+            onPress={() => this.setState({ visibleModal: false })}
+            style={styles.cancelButton}
+          >
+            <Text style={styles.cancelButtonText} >Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={this.handleSubmitText}
+            style={styles.submitButton}
+            disabled={true}
+          >
+            <Text style={styles.submitButtonText}>Post</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -206,16 +209,23 @@ const styles = StyleSheet.create({
     borderWidth: 1
   },
   submitButtonText: {
+    fontSize: 16,
     color: '#fff'
   },
   cancelButton: {
     width: 80,
     padding: 12,
+    marginRight: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
   cancelButtonText: {
+    fontSize: 16,
     color: 'blue'
+  },
+  modalBack: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
   },
   modalContent: {
     marginTop: 100,

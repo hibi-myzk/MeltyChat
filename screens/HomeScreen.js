@@ -24,7 +24,7 @@ class HomeScreen extends React.Component {
           onPress={navigation.getParam('onPressNew') || (() => {})}
           style={styles.barButton}
         >
-          <Text style={styles.barButtonText}>Post</Text>
+          <Text style={styles.barButtonText}>New</Text>
         </TouchableOpacity>
       ),
     };
