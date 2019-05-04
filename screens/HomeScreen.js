@@ -160,6 +160,7 @@ class HomeScreen extends React.Component {
         <MyList
           navigation={this.props.navigation}
           data={this.state.topics}
+          username={this.state.username}
         />
       </SafeAreaView>
     );
@@ -186,7 +187,7 @@ class MyList extends React.PureComponent {
   _keyExtractor = (item, index) => item.id;
 
   _onPressItem = (item) => {
-    this.props.navigation.navigate('Chat', {topic: item});
+    this.props.navigation.navigate('Chat', {username: this.props.username, topic: item});
   };
 
   _renderItem = ({item}) => (

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import SafeAreaView from 'react-native-safe-area-view';
+import moment from 'moment'
 
 import { db } from "../services/db";
 
@@ -37,6 +38,7 @@ class ChatScreen extends React.Component {
       text: '',
       messages: [],
       visibleModal: false,
+      username: this.props.navigation.getParam('username', '')
     };
 
     this.handleChangeText = this.handleChangeText.bind(this);
@@ -49,7 +51,12 @@ class ChatScreen extends React.Component {
       .onSnapshot(snapshot => {
         this.setState({
           text: '',
-          messages: snapshot.docs.map(doc => ({ id: doc.id, text: doc.data().text, createdAt: doc.data().created_at }))
+          messages: snapshot.docs.map(doc => ({
+            id: doc.id,
+            text: doc.data().text,
+            username: doc.data().username,
+            createdAt: new Date(doc.data().created_at.toDate())
+          }))
         });
       });
   }
@@ -67,6 +74,7 @@ class ChatScreen extends React.Component {
   handleSubmitText() {
     db.collection(this.messagePath).add({
       text: this.state.text,
+      username: this.state.username,
       created_at: new Date()
     });
 
@@ -107,6 +115,10 @@ class ChatScreen extends React.Component {
 
   _renderItem = ({item}) => (
     <View style={styles.listItem}>
+      <View style={styles.metadata}>
+        <Text key="username" style={styles.username}>{item.username}</Text>
+        <Text key="timestamp" style={styles.timestamp}>{moment(item.createdAt).fromNow()}</Text>
+      </View>
       <Text style={styles.listItemText} numberOfLines={0}>{item.text}</Text>
     </View>
   );
@@ -150,13 +162,26 @@ const styles = StyleSheet.create({
   listItem: {
     marginLeft: 10,
     marginRight: 10,
-    marginBottom: 10,
     padding: 10,
     borderColor: 'gray',
     borderBottomWidth: 1
   },
   listItemText: {
     fontSize: 16
+  },
+  metadata: {
+    marginBottom: 4,
+    flexDirection: 'row'
+  },
+  username: {
+    fontSize: 14,
+    color: 'gray'
+  },
+  timestamp: {
+    position: 'absolute',
+    right: 0,
+    fontSize: 14,
+    color: 'gray'
   },
   textInput: {
     marginBottom: 20,
