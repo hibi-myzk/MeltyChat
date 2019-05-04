@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   AlertIOS,
   Platform,
+  AsyncStorage
 } from 'react-native';
 import prompt from 'react-native-prompt-android';
 import SafeAreaView from 'react-native-safe-area-view';
@@ -33,7 +34,8 @@ class HomeScreen extends React.Component {
     super(props);
 
     this.state = {
-      topics: []
+      topics: [],
+      username: null
     };
 
     db.collection("topics")
@@ -46,7 +48,76 @@ class HomeScreen extends React.Component {
 
   componentDidMount() {
     this.props.navigation.setParams({ onPressNew: this._onPressNew });
+
+    AsyncStorage.getItem('USERNAME', (err, data) => {
+      if (data !== null){
+        this.setState({username: data})
+      } else {
+        this._changeUsername();
+      }
+    });
   }
+
+  _saveUsername = (name) => {
+    name = name.trim();
+
+    if (name.length == 0) {
+      this._changeUsername();
+      return;
+    } else if (10 < name.length) {
+    } else if (/^[a-zA-Z0-9_]+$/.test(name) == false) {
+      this._changeUsername();
+      return;
+    }
+
+    let lowerName = name.toLowerCase();
+
+    db.collection("usernames").doc(lowerName)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this._changeUsername(name + ' is token.');
+        } else {
+          db.collection("usernames").doc(lowerName).set({created_at: new Date()});
+          AsyncStorage.setItem('USERNAME', name);
+        }
+      })
+      .catch((err) => {
+          console.log(err);
+      });
+  };
+
+  _changeUsername = (message) => {
+    if (message === undefined) {
+      message = 'Username can include alphabet, number and underscore.\n(Max length is 10 characters.)';
+    }
+
+    if (Platform.OS == 'ios') {
+      AlertIOS.prompt(
+        'Username',
+        message,
+        [
+          {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+          {text: 'OK', onPress: name => this._saveUsername(name) },
+        ],
+      );
+    } else if (Platform.OS == 'android') {
+      prompt(
+        'Username',
+        message,
+        [
+          {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+          {text: 'OK', onPress: name => this._saveUsername(name) },
+        ],
+        {
+          type: 'default',
+          cancelable: true,
+          defaultValue: '',
+          placeholder: 'Username'
+        }
+      )
+    }
+  };
 
   _onPressNew = () => {
     if (Platform.OS == 'ios') {
