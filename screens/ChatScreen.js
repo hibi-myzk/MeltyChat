@@ -208,7 +208,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     height: 160,
     backgroundColor: "#fff",
-    padding: 4
+    padding: 4,
+    borderColor: "gray",
+    borderWidth: 1
   },
   actions: {
     flexDirection: 'row',
@@ -248,7 +250,7 @@ const styles = StyleSheet.create({
     marginTop: 100,
     marginLeft: 20,
     marginRight: 20,
-    backgroundColor: 'silver',
+    backgroundColor: '#fff',
     padding: 22,
     borderRadius: 4,
     borderColor: 'rgba(0, 0, 0, 0.1)',
