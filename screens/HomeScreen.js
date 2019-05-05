@@ -260,6 +260,7 @@ class Prompt extends React.PureComponent {
         visible={this.state.visibleModal}
         animationType="slide"
         transparent={true}
+        onRequestClose={() => {}}
       >
         <View style={styles.modalBack}>
           <View style={styles.modalContent}>

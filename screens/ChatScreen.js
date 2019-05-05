@@ -8,13 +8,16 @@ import {
   KeyboardAvoidingView,
   TextInput,
   TouchableOpacity,
-  Modal
+  Modal,
+  YellowBox
 } from 'react-native';
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import SafeAreaView from 'react-native-safe-area-view';
-import moment from 'moment'
+import moment from 'moment';
 
 import { db } from "../services/db";
+
+YellowBox.ignoreWarnings(['Setting a timer']);
 
 class ChatScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -44,10 +47,14 @@ class ChatScreen extends React.Component {
 
     this.handleChangeText = this.handleChangeText.bind(this);
     this.handleSubmitText = this.handleSubmitText.bind(this);
+  }
+
+  componentDidMount() {
+    this.props.navigation.setParams({ onPressNew: this._onPressNew });
 
     // メッセージが追加されたときのイベントリスナーを用意
     this.messagePath = `topics/${this.props.navigation.getParam('topic', {id: ''}).id}/messages`;
-    db.collection(this.messagePath)
+    this.unsubscribe = db.collection(this.messagePath)
       .orderBy("created_at")
       .onSnapshot(snapshot => {
         this.setState({
@@ -62,8 +69,9 @@ class ChatScreen extends React.Component {
       });
   }
 
-  componentDidMount() {
-    this.props.navigation.setParams({ onPressNew: this._onPressNew });
+  componentWillUnmount() {
+    // onCollectionUpdateの登録解除
+    this.unsubscribe();
   }
 
   handleChangeText(text) {
@@ -156,6 +164,7 @@ class ChatScreen extends React.Component {
           visible={this.state.visibleModal}
           animationType="slide"
           transparent={true}
+          onRequestClose={() => {}}
         >
           {this._renderModalContent()}
         </Modal>
