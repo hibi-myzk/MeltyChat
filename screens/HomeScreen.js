@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import prompt from 'react-native-prompt-android';
 import SafeAreaView from 'react-native-safe-area-view';
+import moment from 'moment'
 
 import { db } from "../services/db";
 
@@ -39,9 +40,14 @@ class HomeScreen extends React.Component {
     };
 
     db.collection("topics")
+      .orderBy("updated_at", "desc")
       .onSnapshot(snapshot => {
         this.setState({
-          topics: snapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name }))
+          topics: snapshot.docs.map(doc => ({
+            id: doc.id,
+            name: doc.data().name,
+            updatedAt: new Date(doc.data().updated_at.toDate())
+          }))
         });
       });
   }
@@ -150,7 +156,7 @@ class HomeScreen extends React.Component {
   _newTopic = (name) => {
     db.collection("topics").add({
       name: name,
-      created_at: new Date()
+      updated_at: new Date()
     });
   };
 
@@ -177,6 +183,7 @@ class MyListItem extends React.PureComponent {
       <TouchableOpacity onPress={this._onPress}>
         <View style={styles.listItem}>
           <Text style={styles.listItemText}>{this.props.name}</Text>
+          <Text style={styles.timestamp}>{moment(this.props.updatedAt).fromNow()}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -235,6 +242,11 @@ const styles = StyleSheet.create({
   },
   listItemText: {
     fontSize: 16
+  },
+  timestamp: {
+    textAlign: 'right',
+    fontSize: 14,
+    color: 'gray'
   }
 });
 

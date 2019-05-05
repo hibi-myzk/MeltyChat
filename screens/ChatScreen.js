@@ -35,6 +35,7 @@ class ChatScreen extends React.Component {
     super(props);
 
     this.state = {
+      topic: this.props.navigation.getParam('topic', {id: '', name: ''}),
       text: '',
       messages: [],
       visibleModal: false,
@@ -72,10 +73,17 @@ class ChatScreen extends React.Component {
   }
 
   handleSubmitText() {
+    let now = new Date();
+
     db.collection(this.messagePath).add({
       text: this.state.text.slice(0, 400),
       username: this.state.username,
-      created_at: new Date()
+      created_at: now
+    });
+
+    db.collection('topics').doc(this.state.topic.id).set({
+      name: this.state.topic.name,
+      updated_at: now
     });
 
     this.setState({ visibleModal: false });
