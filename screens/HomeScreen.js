@@ -97,6 +97,7 @@ class HomeScreen extends React.Component {
         } else {
           db.collection("usernames").doc(lowerName).set({created_at: new Date()});
           AsyncStorage.setItem('USERNAME', name);
+          this.setState({username: name});
         }
       })
       .catch((err) => {
