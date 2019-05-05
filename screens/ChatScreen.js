@@ -9,7 +9,8 @@ import {
   TextInput,
   TouchableOpacity,
   Modal,
-  YellowBox
+  YellowBox,
+  Platform
 } from 'react-native';
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import SafeAreaView from 'react-native-safe-area-view';
@@ -18,6 +19,8 @@ import moment from 'moment';
 import { db } from "../services/db";
 
 YellowBox.ignoreWarnings(['Setting a timer']);
+
+const isAndroid = Platform.OS == "android";
 
 class ChatScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -199,7 +202,7 @@ const styles = StyleSheet.create({
     lineHeight: 20
   },
   metadata: {
-    marginBottom: 4,
+    marginBottom: isAndroid ? 12 : 4,
     flexDirection: 'row'
   },
   username: {
