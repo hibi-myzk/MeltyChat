@@ -73,7 +73,7 @@ class ChatScreen extends React.Component {
 
   handleSubmitText() {
     db.collection(this.messagePath).add({
-      text: this.state.text,
+      text: this.state.text.slice(0, 400),
       username: this.state.username,
       created_at: new Date()
     });
@@ -85,6 +85,10 @@ class ChatScreen extends React.Component {
     this.setState({ visibleModal: true });
   };
 
+  _checkCount = () => {
+    return ((0 < this.state.text.length) && (this.state.text.length <= 400));
+  }
+
   _renderModalContent = () => (
     <View style={styles.modalBack}>
       <View style={styles.modalContent}>
@@ -95,6 +99,9 @@ class ChatScreen extends React.Component {
           numberOfLines={0}
           onChangeText={this.handleChangeText}
         />
+        <View>
+          <Text style={[styles.counterText, {color: this._checkCount() ? 'black' : 'red'}]}>{this.state.text.length}/400</Text>
+        </View>
         <View style={styles.actions}>
           <TouchableOpacity
             onPress={() => this.setState({ visibleModal: false })}
@@ -104,8 +111,8 @@ class ChatScreen extends React.Component {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={this.handleSubmitText}
-            style={styles.submitButton}
-            disabled={true}
+            style={[styles.submitButton, {opacity: this._checkCount() ? 1.0 : 0.2}]}
+            disabled={!this._checkCount()}
           >
             <Text style={styles.submitButtonText}>Post</Text>
           </TouchableOpacity>
@@ -188,7 +195,7 @@ const styles = StyleSheet.create({
     color: 'gray'
   },
   textInput: {
-    marginBottom: 20,
+    marginBottom: 8,
     height: 160,
     backgroundColor: "#fff",
     padding: 4
@@ -236,6 +243,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderColor: 'rgba(0, 0, 0, 0.1)',
   },
+  counterText: {
+    textAlign: 'right'
+  }
 });
 
 export default ChatScreen;
