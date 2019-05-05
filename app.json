@@ -23,7 +23,12 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "jp.tofulab.MeltyChat"
+    },
+    "android": {
+      "package": "jp.tofulab.MeltyChat",
+      "permissions": []
     }
   }
 }
