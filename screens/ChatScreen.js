@@ -141,6 +141,8 @@ class ChatScreen extends React.Component {
           data={this.state.messages}
           keyExtractor={this._keyExtractor}
           renderItem={this._renderItem}
+          ref={ref => this.flatList = ref}
+          onLayout={() => this.flatList.scrollToEnd({animated: true})}
         />
         <Modal
           visible={this.state.visibleModal}
