@@ -8,9 +8,10 @@ import {
   TouchableOpacity,
   AlertIOS,
   Platform,
-  AsyncStorage
+  AsyncStorage,
+  Modal,
+  TextInput,
 } from 'react-native';
-import prompt from 'react-native-prompt-android';
 import SafeAreaView from 'react-native-safe-area-view';
 import moment from 'moment'
 
@@ -36,7 +37,10 @@ class HomeScreen extends React.Component {
 
     this.state = {
       topics: [],
-      username: null
+      username: null,
+      visibleUsernamePrompt: false,
+      usernamePromptMessage: '',
+      visibleNewTopicPrompt: false
     };
 
     db.collection("topics")
@@ -71,6 +75,8 @@ class HomeScreen extends React.Component {
       this._changeUsername();
       return;
     } else if (10 < name.length) {
+      this._changeUsername();
+      return;
     } else if (/^[a-zA-Z0-9_]+$/.test(name) == false) {
       this._changeUsername();
       return;
@@ -98,59 +104,36 @@ class HomeScreen extends React.Component {
       message = 'Username can include alphabet, number and underscore.\n(Max length is 10 characters.)';
     }
 
-    if (Platform.OS == 'ios') {
-      AlertIOS.prompt(
-        'Username',
-        message,
-        [
-          {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-          {text: 'OK', onPress: name => this._saveUsername(name) },
-        ],
-      );
-    } else if (Platform.OS == 'android') {
-      prompt(
-        'Username',
-        message,
-        [
-          {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-          {text: 'OK', onPress: name => this._saveUsername(name) },
-        ],
-        {
-          type: 'default',
-          cancelable: true,
-          defaultValue: '',
-          placeholder: 'Username'
-        }
-      )
-    }
+    this.setState({
+      usernamePromptMessage: message,
+      visibleUsernamePrompt: true
+    });
+
+    // if (Platform.OS == 'ios') {
+    //   AlertIOS.prompt(
+    //     'Username',
+    //     message,
+    //     [
+    //       {text: 'OK', onPress: name => this._saveUsername(name) },
+    //     ],
+    //   );
+    // } else if (Platform.OS == 'android') {
+    // }
   };
 
   _onPressNew = () => {
-    if (Platform.OS == 'ios') {
-      AlertIOS.prompt(
-        'New topic',
-        'Input new topic name.',
-        [
-          {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-          {text: 'OK', onPress: name => this._newTopic(name) },
-        ],
-      );
-    } else if (Platform.OS == 'android') {
-      prompt(
-        'New topic',
-        'Input new topic name.',
-        [
-          {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-          {text: 'OK', onPress: name => this._newTopic(name) },
-        ],
-        {
-          type: 'default',
-          cancelable: true,
-          defaultValue: '',
-          placeholder: 'New topic'
-        }
-      )
-    }
+    this.setState({ visibleNewTopicPrompt: true });
+    // if (Platform.OS == 'ios') {
+    //   AlertIOS.prompt(
+    //     'New topic',
+    //     'Input new topic name.',
+    //     [
+    //       {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+    //       {text: 'OK', onPress: name => this._newTopic(name) },
+    //     ],
+    //   );
+    // } else if (Platform.OS == 'android') {
+    // }
   };
 
   _newTopic = (name) => {
@@ -158,6 +141,8 @@ class HomeScreen extends React.Component {
       name: name,
       updated_at: new Date()
     });
+
+    this.setState({ visibleNewTopicPrompt: false });
   };
 
   render() {
@@ -167,6 +152,20 @@ class HomeScreen extends React.Component {
           navigation={this.props.navigation}
           data={this.state.topics}
           username={this.state.username}
+        />
+        <Prompt
+          visible={this.state.visibleUsernamePrompt}
+          title="Username"
+          message={this.state.usernamePromptMessage}
+          placeholder="Username"
+          onPressOK={ name => this._saveUsername(name) }
+        />
+        <Prompt
+          visible={this.state.visibleNewTopicPrompt}
+          title="New topic"
+          message="Input new topic name."
+          placeholder="Topic name"
+          onPressOK={ name => this._newTopic(name) }
         />
       </SafeAreaView>
     );
@@ -202,6 +201,7 @@ class MyList extends React.PureComponent {
       id={item.id}
       onPressItem={this._onPressItem}
       name={item.name}
+      updatedAt={item.updatedAt}
     />
   );
 
@@ -216,12 +216,93 @@ class MyList extends React.PureComponent {
   }
 }
 
+class Prompt extends React.PureComponent {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      text: '',
+      visibleModal: this.props.visible
+    };
+
+    this.handleChangeText = this.handleChangeText.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      visibleModal: nextProps.visible
+    });
+  }
+
+  handleChangeText(text) {
+    this.setState({
+      text
+    });
+  }
+
+  _onPressCancel = () => {
+    this.setState({ visibleModal: false });
+  };
+
+  _onPressOK = () => {
+    this.props.onPressOK(this.state.text);
+    this.setState({ visibleModal: false });
+  };
+
+  _checkCount = () => {
+    return (0 < this.state.text.length);
+  }
+
+  render() {
+    return (
+      <Modal
+        visible={this.state.visibleModal}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modalBack}>
+          <View style={styles.modalContent}>
+            <View>
+              <Text style={styles.titleText}>{this.props.title}</Text>
+            </View>
+            <View>
+              <Text style={styles.messageText}>{this.props.message}</Text>
+            </View>
+            <TextInput
+              style={styles.textInput}
+              placeholder={this.props.placeholder}
+              onChangeText={this.handleChangeText}
+            />
+            <View style={styles.actions}>
+              <TouchableOpacity
+                onPress={this._onPressCancel}
+                style={styles.cancelButton}
+              >
+                <Text style={styles.cancelButtonText} >Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={this._onPressOK}
+                style={[styles.okButton, {opacity: this._checkCount() ? 1.0 : 0.2}]}
+                disabled={!this._checkCount()}
+              >
+                <Text style={styles.okButtonText}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
   title: {
+    textAlign: 'center',
     fontSize: 16
   },
   barButton: {
@@ -247,7 +328,66 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     fontSize: 14,
     color: 'gray'
-  }
+  },
+  modalBack: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+  },
+  modalContent: {
+    marginTop: 100,
+    marginLeft: 20,
+    marginRight: 20,
+    backgroundColor: '#fff',
+    padding: 22,
+    borderRadius: 4,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  titleText: {
+    textAlign: 'center',
+    fontSize: 16
+  },
+  messageText: {
+    textAlign: 'center',
+    fontSize: 14
+  },
+  textInput: {
+    marginTop: 8,
+    marginBottom: 8,
+    backgroundColor: "#fff",
+    padding: 4,
+    borderColor: 'gray',
+    borderWidth: 1
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  okButton: {
+    width: 80,
+    backgroundColor: 'blue',
+    padding: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
+    borderColor: 'blue',
+    borderWidth: 1
+  },
+  okButtonText: {
+    fontSize: 16,
+    color: '#fff'
+  },
+  cancelButton: {
+    width: 80,
+    padding: 12,
+    marginRight: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: 'blue'
+  },
 });
 
 export default HomeScreen;
