@@ -42,8 +42,12 @@ class HomeScreen extends React.Component {
       usernamePromptMessage: '',
       visibleNewTopicPrompt: false
     };
+  }
 
-    db.collection("topics")
+  componentDidMount() {
+    this.props.navigation.setParams({ onPressNew: this._onPressNew });
+
+    this.unsubscribe = db.collection("topics")
       .orderBy("updated_at", "desc")
       .onSnapshot(snapshot => {
         this.setState({
@@ -54,10 +58,6 @@ class HomeScreen extends React.Component {
           }))
         });
       });
-  }
-
-  componentDidMount() {
-    this.props.navigation.setParams({ onPressNew: this._onPressNew });
 
     AsyncStorage.getItem('USERNAME', (err, data) => {
       if (data !== null){
@@ -66,6 +66,11 @@ class HomeScreen extends React.Component {
         this._changeUsername();
       }
     });
+  }
+
+  componentWillUnmount() {
+    // onCollectionUpdateの登録解除
+    this.unsubscribe();
   }
 
   _saveUsername = (name) => {
@@ -141,8 +146,6 @@ class HomeScreen extends React.Component {
       name: name,
       updated_at: new Date()
     });
-
-    this.setState({ visibleNewTopicPrompt: false });
   };
 
   render() {
@@ -158,14 +161,24 @@ class HomeScreen extends React.Component {
           title="Username"
           message={this.state.usernamePromptMessage}
           placeholder="Username"
-          onPressOK={ name => this._saveUsername(name) }
+          cancelable={false}
+          onPressOK={ name => {
+            this.setState({ visibleUsernamePrompt: false });
+            this._saveUsername(name);
+          }}
+          onPressCancel={ () => this.setState({ visibleUsernamePrompt: false }) }
         />
         <Prompt
           visible={this.state.visibleNewTopicPrompt}
           title="New topic"
           message="Input new topic name."
           placeholder="Topic name"
-          onPressOK={ name => this._newTopic(name) }
+          cancelable={true}
+          onPressOK={ name => {
+            this.setState({ visibleNewTopicPrompt: false });
+            this._newTopic(name);
+          }}
+          onPressCancel={ () => this.setState({ visibleNewTopicPrompt: false }) }
         />
       </SafeAreaView>
     );
@@ -223,7 +236,7 @@ class Prompt extends React.PureComponent {
 
     this.state = {
       text: '',
-      visibleModal: this.props.visible
+      visibleModal: false
     };
 
     this.handleChangeText = this.handleChangeText.bind(this);
@@ -242,6 +255,7 @@ class Prompt extends React.PureComponent {
   }
 
   _onPressCancel = () => {
+    this.props.onPressCancel();
     this.setState({ visibleModal: false });
   };
 
@@ -278,7 +292,7 @@ class Prompt extends React.PureComponent {
             <View style={styles.actions}>
               <TouchableOpacity
                 onPress={this._onPressCancel}
-                style={styles.cancelButton}
+                style={[styles.cancelButton, {width: this.props.cancelable ? 80 : 0, marginRight: this.props.cancelable ? 10 : 0}]}
               >
                 <Text style={styles.cancelButtonText} >Cancel</Text>
               </TouchableOpacity>

@@ -95,6 +95,8 @@ class ChatScreen extends React.Component {
     });
 
     this.setState({ visibleModal: false });
+
+    this.flatList.scrollToEnd({animated: true});
   }
 
   _onPressNew = () => {
