@@ -55,7 +55,7 @@ class ChatScreen extends React.Component {
     // メッセージが追加されたときのイベントリスナーを用意
     this.messagePath = `topics/${this.props.navigation.getParam('topic', {id: ''}).id}/messages`;
     this.unsubscribe = db.collection(this.messagePath)
-      .orderBy("created_at")
+      .orderBy("created_at", "desc")
       .onSnapshot(snapshot => {
         this.setState({
           text: '',
@@ -95,8 +95,6 @@ class ChatScreen extends React.Component {
     });
 
     this.setState({ visibleModal: false });
-
-    this.flatList.scrollToEnd({animated: true});
   }
 
   _onPressNew = () => {
@@ -160,7 +158,6 @@ class ChatScreen extends React.Component {
           keyExtractor={this._keyExtractor}
           renderItem={this._renderItem}
           ref={ref => this.flatList = ref}
-          onLayout={() => this.flatList.scrollToEnd({animated: true})}
         />
         <Modal
           visible={this.state.visibleModal}
