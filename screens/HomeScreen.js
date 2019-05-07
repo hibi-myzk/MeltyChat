@@ -40,6 +40,7 @@ class HomeScreen extends React.Component {
     this.state = {
       topics: [],
       username: null,
+      locked: false,
       visibleUsernamePrompt: false,
       usernamePromptMessage: '',
       visibleNewTopicPrompt: false
@@ -62,8 +63,25 @@ class HomeScreen extends React.Component {
       });
 
     AsyncStorage.getItem('USERNAME', (err, data) => {
-      if (data !== null){
-        this.setState({username: data})
+      if (data !== null) {
+        this.setState({username: data});
+
+        let lowerName = data.toLowerCase();
+
+        db.collection("usernames").doc(lowerName)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              let locked = doc.data().locked;
+
+              if (locked) {
+                this.setState({locked: true});
+              }
+            }
+          })
+          .catch((err) => {
+              console.log(err);
+          });
       }
     });
   }
@@ -152,6 +170,15 @@ class HomeScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={styles.container}>
+        <Modal
+          visible={this.state.locked}
+          animationType="none"
+          onRequestClose={() => {}}
+        >
+          <View style={styles.modalBlank}>
+            <Text>Your account is locked.</Text>
+          </View>
+        </Modal>
         <MyList
           navigation={this.props.navigation}
           data={this.state.topics}
@@ -425,6 +452,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'blue'
   },
+  modalBlank: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
 });
 
 export default HomeScreen;
