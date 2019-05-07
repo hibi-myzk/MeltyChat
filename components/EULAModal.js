@@ -6,11 +6,14 @@ import {
   Modal,
   ScrollView,
   TouchableOpacity,
-  AsyncStorage
+  AsyncStorage,
+  Platform
 } from 'react-native';
 import SafeAreaView from 'react-native-safe-area-view';
 
 import { eula } from "../eula";
+
+const isAndroid = Platform.OS == "android";
 
 class EULAModal extends React.PureComponent {
   constructor(props) {
@@ -35,6 +38,8 @@ class EULAModal extends React.PureComponent {
     AsyncStorage.setItem('EULA_AGREED', 'true');
 
     this.setState({visibleModal: false});
+
+    this.props.onPressAccept();
   };
 
   render() {
@@ -72,7 +77,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     margin: 20,
-    marginBottom: 60,
+    marginBottom: isAndroid ? 100 : 60,
     backgroundColor: '#fff',
     padding: 10,
     borderRadius: 4,

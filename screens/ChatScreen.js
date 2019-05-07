@@ -10,7 +10,8 @@ import {
   TouchableOpacity,
   Modal,
   YellowBox,
-  Platform
+  Platform,
+  Alert
 } from 'react-native';
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import SafeAreaView from 'react-native-safe-area-view';
@@ -142,6 +143,42 @@ class ChatScreen extends React.Component {
 
   _keyExtractor = (item, index) => item.id;
 
+  _report = (messageID) => {
+    db.collection(this.messagePath).doc(messageID).set({
+      reported: true,
+      reportedBy: this.state.username
+    }, { merge: true });
+
+    Alert.alert(
+      '',
+      'Thank you for your report',
+      [
+        {
+          text: 'OK',
+          onPress: () => {},
+          style: 'cancel',
+        }
+      ],
+      {cancelable: false},
+    );
+  };
+
+  _onPressReport = (messageID) => {
+    Alert.alert(
+      'Report message',
+      'Does this message contain objectionable contents?',
+      [
+        {
+          text: 'No',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {text: 'Yes', onPress: () => this._report(messageID) },
+      ],
+      {cancelable: false},
+    );
+  };
+
   _renderItem = ({item}) => (
     <View style={styles.listItem}>
       <View style={styles.metadata}>
@@ -149,6 +186,12 @@ class ChatScreen extends React.Component {
         <Text key="timestamp" style={styles.timestamp}>{moment(item.createdAt).fromNow()}</Text>
       </View>
       <Text style={styles.listItemText} numberOfLines={0}>{item.text}</Text>
+      <TouchableOpacity
+        onPress={ () => this._onPressReport(item.id) }
+        style={styles.reportButton}
+      >
+        <Text style={styles.reportButtonText}>Report</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -214,6 +257,15 @@ const styles = StyleSheet.create({
     right: 0,
     fontSize: 14,
     color: 'gray'
+  },
+  reportButton: {
+    marginTop: 20,
+    width: 80,
+    alignSelf: 'flex-end',
+    alignItems: 'flex-end'
+  },
+  reportButtonText: {
+    fontSize: 12
   },
   textInput: {
     marginBottom: 8,

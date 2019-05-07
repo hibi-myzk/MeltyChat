@@ -11,6 +11,7 @@ import {
   AsyncStorage,
   Modal,
   TextInput,
+  Alert
 } from 'react-native';
 import SafeAreaView from 'react-native-safe-area-view';
 import moment from 'moment'
@@ -63,8 +64,6 @@ class HomeScreen extends React.Component {
     AsyncStorage.getItem('USERNAME', (err, data) => {
       if (data !== null){
         this.setState({username: data})
-      } else {
-        this._changeUsername();
       }
     });
   }
@@ -158,7 +157,7 @@ class HomeScreen extends React.Component {
           data={this.state.topics}
           username={this.state.username}
         />
-        <EULAModal />
+        <EULAModal onPressAccept={ () => this._changeUsername() } />
         <Prompt
           visible={this.state.visibleUsernamePrompt}
           title="Username"
@@ -191,6 +190,26 @@ class HomeScreen extends React.Component {
 class MyListItem extends React.PureComponent {
   _onPress = () => {
     this.props.onPressItem(this.props);
+  };
+
+  _report = () => {
+
+  };
+
+  _onPressReport = () => {
+    Alert.alert(
+      'Report topic',
+      'Does this topic contain objectionable contents?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: this._report},
+      ],
+      {cancelable: false},
+    );
   };
 
   render() {
