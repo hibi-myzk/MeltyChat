@@ -16,6 +16,7 @@ import SafeAreaView from 'react-native-safe-area-view';
 import moment from 'moment'
 
 import { db } from "../services/db";
+import EULAModal from "../components/EULAModal";
 
 class HomeScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -157,6 +158,7 @@ class HomeScreen extends React.Component {
           data={this.state.topics}
           username={this.state.username}
         />
+        <EULAModal />
         <Prompt
           visible={this.state.visibleUsernamePrompt}
           title="Username"
