@@ -11,7 +11,8 @@ import {
   AsyncStorage,
   Modal,
   TextInput,
-  Alert
+  Alert,
+  Linking
 } from 'react-native';
 import SafeAreaView from 'react-native-safe-area-view';
 import moment from 'moment'
@@ -184,6 +185,9 @@ class HomeScreen extends React.Component {
           data={this.state.topics}
           username={this.state.username}
         />
+        <TouchableOpacity onPress={() => Linking.openURL('mailto:info@tofulab.jp')}>
+          <Text style={styles.contactText}>Tap here to contact us.</Text>
+        </TouchableOpacity>
         <EULAModal onPressAccept={ () => this._changeUsername() } />
         <Prompt
           visible={this.state.visibleUsernamePrompt}
@@ -456,6 +460,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  contactText: {
+    fontSize: 16,
+    textAlign: 'center'
   }
 });
 
