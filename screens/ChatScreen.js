@@ -63,7 +63,7 @@ class ChatScreen extends React.Component {
       .onSnapshot(snapshot => {
         this.setState({
           text: '',
-          messages: snapshot.docs.map(doc => ({
+          messages: snapshot.docs.filter(doc => doc.data().reported != true).map(doc => ({
             id: doc.id,
             text: doc.data().text,
             username: doc.data().username,
